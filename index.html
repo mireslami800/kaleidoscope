@@ -3,9 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>Interactive Kaleidoscope</title>
-    <link rel="shortcut icon" href="kaleidoscope.png" type="image/x-icon">
-    <script src="https://cdn.tailwindcss.com"></script>
+    <title>🌼Kaleidoscope🌸</title> <script src="https://cdn.tailwindcss.com"></script>
     <style>
         body {
             font-family: 'Inter', sans-serif;
@@ -18,6 +16,17 @@
             align-items: center;
             height: 100vh;
             overscroll-behavior-y: contain;
+            padding-top: 1rem; /* Add some padding at the top for the title */
+        }
+        .page-title {
+            font-size: 2.25rem; /* Tailwind text-4xl */
+            font-weight: bold;
+            color: #F3F4F6; /* Lighter gray for title */
+            margin-bottom: 1rem; /* Space below the title */
+            text-align: center;
+            user-select: none;
+            -webkit-user-select: none;
+            -ms-user-select: none;
         }
         #kaleidoscopeCanvas {
             display: block;
@@ -43,14 +52,13 @@
             -ms-user-select: none; 
         }
         .control-item {
-            position: relative; /* For z-index context of children if needed */
+            position: relative; 
             display: flex;
             align-items: center;
         }
         .control-item label {
             margin-right: 0.5rem;
             font-size: 0.875rem;
-            /* user-select: none; is inherited */
         }
         .control-item input[type="number"],
         .control-item button {
@@ -67,9 +75,9 @@
             -webkit-user-select: text;
             -ms-user-select: text;
             width: 4.5rem; 
-            position: relative; /* Ensure it can have its own z-index */
-            z-index: 2;      /* Stack above sibling label if any overlap */
-            pointer-events: auto; /* Explicitly allow pointer events */
+            position: relative; 
+            z-index: 2;      
+            pointer-events: auto; 
         }
         .control-item input[type="number"]:focus,
         .control-item button:focus {
@@ -80,7 +88,7 @@
         .control-item button {
             background-color: #4F46E5; 
             cursor: pointer;
-            position: relative; /* Ensure buttons can also have z-index if needed */
+            position: relative; 
             z-index: 1;
         }
         .control-item button:hover {
@@ -103,16 +111,16 @@
             user-select: none; 
             -webkit-user-select: none;
             -ms-user-select: none;
-            pointer-events: none; /* Crucial: No interaction when hidden */
+            pointer-events: none; 
         }
         #messageBox.show {
             opacity: 1;
-            pointer-events: auto; /* Interaction allowed when shown */
+            pointer-events: auto; 
         }
     </style>
 </head>
-<body class="bg-gray-900 text-gray-200 flex flex-col items-center justify-start h-screen p-4">
-    <h2>🌼Kaleidoscope🌸</h2>
+<body class="bg-gray-900 text-gray-200 flex flex-col items-center justify-start h-screen"> <h1 class="page-title">🌼Kaleidoscope🌸</h1>
+
     <div class="controls-container">
         <div class="control-item">
             <label for="segmentsInput">Segments:</label>
@@ -162,21 +170,32 @@
         function showMessage(message, duration = 2000) {
             messageBox.textContent = message;
             messageBox.classList.add('show');
-            // messageBox.style.pointerEvents = 'auto'; // Handled by .show class
             setTimeout(() => {
                 messageBox.classList.remove('show');
-                // messageBox.style.pointerEvents = 'none'; // Handled by removing .show class
             }, duration);
         }
 
         // Function to set up canvas dimensions
         function setupCanvas() {
+            const pageTitle = document.querySelector('.page-title');
             const controlsContainer = document.querySelector('.controls-container');
-            const controlsHeight = controlsContainer ? controlsContainer.offsetHeight : 0;
-            const padding = 20; 
             
-            canvas.width = window.innerWidth - 2 * padding;
-            canvas.height = Math.max(50, window.innerHeight - controlsHeight - 3 * padding); 
+            let titleHeight = 0;
+            if (pageTitle) {
+                 // Get actual rendered height including margins
+                const style = window.getComputedStyle(pageTitle);
+                titleHeight = pageTitle.offsetHeight + parseInt(style.marginTop) + parseInt(style.marginBottom);
+            }
+            
+            const controlsHeight = controlsContainer ? controlsContainer.offsetHeight : 0;
+            const pagePaddingTop = parseFloat(window.getComputedStyle(document.body).paddingTop) || 0;
+            const controlsMarginBottom = parseFloat(window.getComputedStyle(controlsContainer).marginBottom) || 0;
+
+            const totalVerticalSpaceForCanvas = window.innerHeight - titleHeight - controlsHeight - pagePaddingTop - controlsMarginBottom - 20; // 20 for some bottom margin/padding for canvas
+            const canvasHorizontalPadding = 40; // 20px padding on each side for the canvas
+
+            canvas.width = window.innerWidth - canvasHorizontalPadding;
+            canvas.height = Math.max(50, totalVerticalSpaceForCanvas); 
 
             ctx.fillStyle = '#000000'; 
             ctx.fillRect(0, 0, canvas.width, canvas.height); 
@@ -242,9 +261,9 @@
         }
 
         function handleMouseMove(event) {
-            if (isDrawing && event.target === canvas) { // Ensure drawing only if mouse is down and over canvas
+            if (isDrawing && event.target === canvas) { 
                  draw(event.offsetX, event.offsetY);
-            } else if (isDrawing && event.target !== canvas) { // If mouse down but leaves canvas
+            } else if (isDrawing && event.target !== canvas) { 
                 stopDrawing();
             }
         }
@@ -260,7 +279,7 @@
         }
 
         function handleTouchMove(event) {
-            if (isDrawing && event.target === canvas) { // Ensure drawing only if touch started and is over canvas
+            if (isDrawing && event.target === canvas) { 
                 event.preventDefault(); 
                 const touch = event.touches[0];
                 const rect = canvas.getBoundingClientRect();
@@ -269,8 +288,6 @@
         }
         
         canvas.addEventListener('mouseup', stopDrawing);
-        // Changed mouseout to only stop drawing if isDrawing is true.
-        // This prevents stopping drawing if the mouse just moves over the canvas without being pressed.
         canvas.addEventListener('mouseout', () => { if(isDrawing) stopDrawing(); }); 
         canvas.addEventListener('touchend', stopDrawing);
         canvas.addEventListener('touchcancel', stopDrawing); 
